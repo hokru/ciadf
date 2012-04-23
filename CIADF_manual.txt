@@ -1,0 +1,62 @@
+You can override several default settings with the .ciadfrc file in your $HOME
+$HOME/.ciadfrc:
+func <string>     give a functional. Detection of functional type may not always succeed...
+vdw on/off        if "vdw" and "on" found you will use DFT-D
+cosmo <string>    set <string> as default solvent, you still have to use '-cosmo'
+grid <real>       enter numerical intergration grid. (x.x)
+basis <string>    enter the basis set
+trustrad <real>   enter trust radius for geometry optimization (x.xx), default is 0.3
+maxcycle <int>    maxcycle in GeoOpt
+scfiter <int>     max of SCF iterations
+notc              turns of $TC_SUBMISSION_DIR
+smear             turns on el-smearing (the ADF default !) 
+tenergy           turns on TOTALENERGY calculation
+format xyz/tmol   xyz or turbomole, default is xyz
+ifile <string>   input file
+restart off      if found, no restart comments are written to the input
+more special options:
+(ofile <sting>    output file for job (JOB option))
+(ADFPREP         if found, it prepares a convenient minimal jobscript, ready to submit (JOB option))
+
+
+Help:
+ciadf -h
+ciadf -v  prints default (based on .ciadfrc, if found)
+
+infile: input coordinates, either XYZ or TMOL(turbomole) format, XYZ without first 2 lines is also accepted
+jobfile: name/description of the calculation(also TITEL in adf input). submit this if Job option is NOT given 
+
+(outfile: input for ADF if job option is given) 
+
+Output of the calculation:
+"jobfile.out": normal adf output
+"jobfile.t21": TAPE21
+
+you have to use escape characters "\" if you want to enter something with brackets!
+instead "-sym C(S)" enter "-sym C\(S\)"
+
+default "jobfile" is "job.<PID>" 
+
+Fragments:
+-frag <file>  with one Fragment identifier per line:
+ eg.  frag.dat:
+            MyFrag1
+            MyFrag2
+
+examples:
+PBE-D/DZP calculation with large Grid and tight criteria for gradient and scf and small frozen core.
+ciadf -vdw -func pbe -bas DZP -grid 7 -grad 4 -scfconv 7 -fc small -noopt -f some.xyz -n C60_singelpoint
+
+transition state search with default settings, follow mode 3
+ciadft -ts 3 -f ts.in -n TS_opt
+
+
+
+since the cluster+adf doesnt provide easy to use restart options for unfinished jobs:
+with '-wall <int>' you can give the walltime you want to use for your jobs.
+If you use the JOB options then 1 min before the walltime is reached, TAPE21 and TAPE13 are copied
+back to the network drive. 
+eg: ciadf -f H2opt -o H2opt_job -job -wall 20     
+the H2opt_job must then be submitted. It makes sure that 1min before the walltime (20h) is reached, your restart files
+are savely copied back to your submission dir.
+
